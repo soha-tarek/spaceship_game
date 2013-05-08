@@ -1,0 +1,327 @@
+<!DOCTYPE HTML>
+<html>
+    
+    <head>
+        <title>pixi.js example 1</title>
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                background-color: #000000;
+            }
+        </style>
+        <script src="pixi.js"></script>
+        <script src="../../src/pixi/renderers/WebGLRenderer.js"></script>
+    </head>
+    
+    <body>
+        <img id="image" src="pausebutt.png" style="position:absolute; top:30px ; right:170px;" height="100" width="100" onclick="PauseGame()" ;>
+        <img id="image" src="mutebutt.png" style="position:absolute; top:150px ; right:165px; " height="100" width="100" onclick="mute()" ;>
+        <img id="image" src="playbutt.png" style="position:absolute; top:30px ; right:65px; " height="100" width="100" onclick="bla()" ;>
+        <label id="score" title="0" style="position:absolute;top:270px;right:-140px;color:grey;font-size:50px;visibility:visible;margin-right:20%;"></label>
+        <audio id="music1" src="Game_background_music.wav" preload="auto"></audio>
+        <body background="cover3.jpg">
+
+		<script>
+            // create an new instance of a pixi stage
+            var Flag_Alien;
+            var Flag_Bullet;
+            var Flag_Move;
+            var Play;
+            var mutesound;
+
+			 var music = document.getElementById("music1");
+                music.autoplay = true;
+                music.load();
+                music.loop = true;
+				
+				
+            function bla() {
+                Flag_Alien = true;
+                Flag_Bullet = true;
+                Flag_Move = true;
+                Play = 1;
+                mutesound = 1;
+                Start();
+            }
+
+            function PauseGame() {
+
+                if (Play == 1) {
+                    Flag_Alien = false;
+                    Flag_Bullet = false;
+                    Flag_Move = false;
+                    Play = 0;
+                } else {
+                    Flag_Alien = true;
+                    Flag_Bullet = true;
+                    Flag_Move = true;
+                    Play = 1;
+                }
+            }
+
+            function mute() {
+                if (mutesound == 1) {
+	                        
+                music.pause();	
+	            mutesound = 0;
+                } else {
+                    
+               music.play();
+	                    mutesound = 1;
+                }
+            }
+                var renderer = PIXI.autoDetectRenderer(window.innerWidth, window.innerHeight, null);
+            function Start() {
+           
+                var interactive = true;
+                var stage = new PIXI.Stage(0x66FF99, interactive);
+                var now,
+                    then = new Date().getTime(),
+                    delta;
+                // create a renderer instance
+
+                // add the renderer view element to the DOM
+                document.body.appendChild(renderer.view);
+                //   renderer.view.style.position = "absolute";
+                // renderer.view.style.top = "50px";
+                // r//enderer.view.style.left = "50px";
+
+                requestAnimFrame(animate);
+
+                // create a texture from an image path
+                var texture = PIXI.Texture.fromImage("Spaceship3.png");
+                var texture2 = PIXI.Sprite.fromImage("space.jpg");
+                var texture3 = PIXI.Sprite.fromImage("Spaceship5.png");
+                var texture4 = PIXI.Sprite.fromImage("Spaceship5.png");
+                var texture5 = PIXI.Sprite.fromImage("Spaceship5.png");
+
+                texture3.position.x = window.innerWidth - 260;
+                texture3.position.y = window.innerHeight - 300;
+                texture4.position.x = window.innerWidth - 260;
+                texture4.position.y = window.innerHeight - 220;
+                texture5.position.x = window.innerWidth - 260;
+                texture5.position.y = window.innerHeight - 140;
+                var Move = new Array();
+                var enemy = new Array();
+                var num = 0;
+                var count = 0;
+                var life = 3;
+                var music;
+
+
+                stage.addChild(texture2);
+
+
+                stage.addChild(texture3);
+                stage.addChild(texture4);
+                stage.addChild(texture5);
+
+
+
+
+                // create a new Sprite using the texture
+                var spaceship = new PIXI.Sprite(texture);
+                // enable the bunny to be interactive.. this will allow it to respond to mouse and touch events		
+                // center the sprites anchor point
+                spaceship.anchor.x = 0.5;
+                spaceship.anchor.y = 0.5;
+
+                // move the sprite t the center of the screen
+                spaceship.position.x = 670;
+                spaceship.position.y = 530;
+                spaceship.setInteractive(true);
+
+
+                stage.addChild(spaceship);
+                // create a new Sprite using the texture
+                spaceship.mousedown = function (data) {
+
+                    fire();
+                };
+
+
+
+
+                function fire(x, y) {
+
+                    if (Flag_Bullet == true) {
+                        var texture3 = PIXI.Texture.fromImage("rocket-icon.png");
+                        var ball = new PIXI.Sprite(texture3);
+
+                        ball.anchor.x = 0.5;
+                        ball.anchor.y = 0.5;
+                        ball.position.x = spaceship.position.x;
+                        ball.position.y = spaceship.position.y - 10;
+
+                        Move.push(ball);
+                        stage.addChild(ball);
+                        motion();
+                        //	alert("Soha");
+                    }
+                }
+
+                function aliens() {
+                    if (Flag_Alien == true) {
+                        var texture4 = PIXI.Texture.fromImage("hungry_alien.png");
+                        var alien = new PIXI.Sprite(texture4);
+
+                        alien.position.x = window.innerWidth * Math.random();
+                        alien.position.y = -window.innerHeight * Math.random();
+                        enemy.push(alien);
+                        stage.addChild(alien);
+                        motion();
+                    }
+                }
+
+                function collision() {
+                    for (var i = 0; i < enemy.length; i++) {
+                        for (var j = 0; j < Move.length; j++) {
+                            var ali = enemy[i];
+                            var BULLET = Move[j];
+                            if ((BULLET.position.x < (ali.position.x + ali.width)) && ((BULLET.position.x + BULLET.width) > ali.position.x) && (BULLET.position.y < (ali.position.y + ali.height)) && ((BULLET.position.y + BULLET.height) > ali.position.y)) {
+                                enemy.splice(i, 1);
+                                Move.splice(j, 1);
+                                num++;
+                                count++;
+                                document.getElementById('score').innerHTML = num;
+                                stage.removeChild(BULLET);
+                                stage.removeChild(ali);
+                                stage.removeChild(Move[j]);
+                                stage.removeChild(enemy[i]);
+                            }
+                        }
+                    }
+                }
+
+                function collision2() {
+                    for (var i = 0; i < enemy.length; i++) {
+                        var ali = enemy[i];
+                        if ((spaceship.position.x < (ali.position.x + ali.width)) && ((spaceship.position.x + spaceship.width) > ali.position.x) && (spaceship.position.y < (ali.position.y + ali.height)) && ((spaceship.position.y + spaceship.height) > ali.position.y)) {
+
+                            if (life == 3) {
+                                life--;
+                                stage.removeChild(ali);
+                                enemy.splice(i, 1);
+                                stage.removeChild(texture3);
+                                break;
+                            }
+                            if (life == 2) {
+                                life--;
+
+                                stage.removeChild(ali);
+                                enemy.splice(i, 1);
+                                stage.removeChild(texture4);
+
+                                break;
+                            }
+                            if (life == 1) {
+                                life--;
+                                stage.removeChild(ali);
+                                enemy.splice(i, 1);
+                                stage.removeChild(texture5);
+                                PauseGame();
+
+                                stage.removeChild(spaceship);
+                                for (var i = 0; i < enemy.length; i++) {
+                                    stage.removeChild(enemy[i]);
+                                }
+                                alert("GAME OVER!");
+                                break;
+                            }
+
+                            fire();
+
+                        }
+                    }
+                }
+
+
+
+
+                function motion() {
+                    if (Flag_Move == true) {
+                        now = new Date().getTime();
+                        delta = now - then;
+                        for (var i = 0; i < Move.length; i++) {
+
+                            Move[i].position.y -= Speed(delta, 4);
+                        }
+                        for (var i = 0; i < enemy.length; i++) {
+                            if (count < 10)
+                                enemy[i].position.y += Speed(delta, 2);
+                            else if (count >= 10 && count < 15) {
+                                enemy[i].position.y += Speed(delta, 4)
+                            } else if (count >= 15 && count < 20) {
+                                enemy[i].position.y += Speed(delta, 7)
+                            } else if (count >= 20) {
+                                enemy[i].position.y += Speed(delta, 13)
+                            }
+                        }
+                        then = now;
+                    }
+                }
+
+                var Speed = function (del, speed) {
+                    if (Flag_Move == true) {
+                        return (speed * 60 * del) / 1000;
+                    }
+                }
+
+
+                // set the callbacks for when the mouse or a touch moves		
+                spaceship.mousemove = function (data) {
+                    if (Flag_Move == true) {
+                        this.data = data;
+                        // need to get parent coords..
+                        var newPosition = this.data.getLocalPosition(this.parent);
+                        this.position.x = newPosition.x;
+                        this.position.y = newPosition.y;
+                    }
+                }
+
+
+
+
+                //var tilingSprite = new PIXI.TilingSprite(texture2, window.innerWidth, window.innerHeight)
+
+                //var count = 0;
+                //stage.addChild(tilingSprite);
+
+
+
+
+                setInterval(aliens, 1000);
+                setInterval(collision, 1);
+                setInterval(collision2, 1);
+
+
+                function animate() {
+                    requestAnimFrame(animate);
+                    //to move the background
+                    // count += 0.005
+                    //tilingSprite.tileScale.x = 2 + Math.sin(count);
+                    //tilingSprite.tileScale.y = 2 + Math.cos(count);
+
+                    //tilingSprite.tilePosition.x += 1;
+                    //	tilingSprite.tilePosition.y += 1;
+
+                    // to move the bullets
+
+                    //for ( var i = 0 ; i <stage.children.length ; i++ ) {
+                    //if( stage.children[i].texture == texture3) {
+                    //stage.children[i].position.y -= 8;
+
+                    //	 }
+                    // }
+
+
+
+                    renderer.render(stage);
+                    setTimeout( motion,30);
+                }
+            }
+        </script>
+    </body>
+
+</html>
